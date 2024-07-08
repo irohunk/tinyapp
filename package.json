@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/irohunk/tinyapp/issues"
   },
-  "homepage": "https://github.com/irohunk/tinyapp#readme"
+  "homepage": "https://github.com/irohunk/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
