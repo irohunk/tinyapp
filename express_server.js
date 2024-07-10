@@ -1,19 +1,25 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+app.use(cookieParser());
+app.use(express.json());
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
 app.use(express.urlencoded({ extended: true }));
+
+// Login
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect('/urls');
+});
 
 // Generate Random String as Short URL
 function generateRandomString() {
