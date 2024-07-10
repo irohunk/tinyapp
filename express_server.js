@@ -59,6 +59,25 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Update/Edit
+app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const templateVars = {
+    longURL: urls[id]
+  }
+
+  res.render('urls_show', templateVars);
+})
+
+app.post("/urls/:id", (req, res) => {
+  const id = req.params.id;
+  const newlongURL = req.body.longURL;
+
+  urlDatabase[id] = newlongURL;
+  res.redirect('/urls');
+})
+
+// Delete
 app.post("/urls/:id/delete", (req, res) => {
   const urlId = req.params.id;
 
