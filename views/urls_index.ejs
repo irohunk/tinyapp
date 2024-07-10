@@ -20,6 +20,7 @@
     />
     <title>TinyApp</title>
   </head>
+
   <body>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
@@ -35,6 +36,11 @@
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
+              <td>
+                <form method="POST" action="/urls/<%= id %>/delete">
+                  <button type="submit">Delete</button>
+                </form>
+              </td>
             </tr>
           <% } %>
         </tbody>

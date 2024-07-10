@@ -15,6 +15,7 @@ const urlDatabase = {
 
 app.use(express.urlencoded({ extended: true }));
 
+// Generate Random String as Short URL
 function generateRandomString() {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var randomString = '';
@@ -29,7 +30,7 @@ app.post("/urls", (req, res) => {
   const id = generateRandomString();
   urlDatabase[id] = longURL;
   console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  // res.send("Ok"); // Respond with 'Ok' (we will replace this)
   res.redirect(`/urls/${id}`);
 });
 
@@ -58,9 +59,17 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+app.post("/urls/:id/delete", (req, res) => {
+  const urlId = req.params.id;
+
+  delete urlDatabase[urlId];
+
+  res.redirect('/urls');
+})
+
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
