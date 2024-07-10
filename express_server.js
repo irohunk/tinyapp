@@ -16,7 +16,7 @@ const urlDatabase = {
 app.use(express.urlencoded({ extended: true }));
 
 function generateRandomString() {
-  chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   var randomString = '';
   for (var i = 6; i > 0; --i) {
     randomString += chars[Math.floor(Math.random() * chars.length)];
@@ -28,9 +28,9 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   const id = generateRandomString();
   urlDatabase[id] = longURL;
-  res.redirect(`/urls/${id}`);
   console.log(req.body); // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${id}`);
 });
 
 app.get("/urls", (req, res) => {
