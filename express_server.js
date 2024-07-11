@@ -147,23 +147,7 @@ app.post("/urls/:id/delete", (req, res) => {
 })
 
 // Logout
-// app.get("/logout", (req, res) => {
-//   const userId = req.cookies.user_id;
-//   const user = users[userId];
-//   const templateVars = {
-//     // longURL: urls[id],
-//     // // username: req.cookies["username"],
-//     user
-//   }
-
-//   res.redirect('/login');
-// })
-
 app.post('/logout', (req, res) => {
-  // const userId = req.cookies.user_id;
-  // const user = users[userId];
-  // Clear the 'username' cookie
-  // res.clearCookie('username');
   req.session.email = null;
   // Redirect to /urls page
   res.redirect('/login');
@@ -171,17 +155,6 @@ app.post('/logout', (req, res) => {
 
 
 // Register
-// app.get("/register", (req, res) => {
-//   console.log('Username from session:', req.session.username);
-//   res.render('register', { 
-//     username: req.session.username,
-//     error: req.session.error || null });
-//   // const templateVars = {error: req.cookies.error}
-//   // res.clearCookie("error")
-
-//   // return res.render("register", templateVars);
-// });
-
 app.get('/register', (req, res) => {
   const templateVars = { user: null };
   res.render('register', templateVars);
@@ -202,7 +175,6 @@ app.post('/register', (req, res) => {
   }
 
   // Otherwise, create the user
-  // Assuming a function `createUser`
   const newUser = createUser(email, password, users);
   
   // Clear error
