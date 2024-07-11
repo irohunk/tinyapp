@@ -98,6 +98,13 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect('/urls');
 })
 
+// Logout
+app.post('/logout', (req, res) => {
+  // Clear the 'username' cookie
+  res.clearCookie('username');
+  // Redirect to /urls page
+  res.redirect('/urls');
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
