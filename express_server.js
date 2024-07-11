@@ -5,11 +5,12 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const PORT = 8080; // default port 8080
 
-const users = require("./data/userData");
+const { users } = require("./data/userData");
 const {
   authenticateUser,
   userExists,
-  createUser
+  createUser,
+  getUserByEmail
 } = require("./helpers/authenticationHelpers");
 
 app.set("view engine", "ejs");
@@ -37,11 +38,22 @@ const urlDatabase = {
 app.use(express.urlencoded({ extended: true }));
 
 // Login
+app.get('/login', (req, res) => {
+  const templateVars = { user: null };
+  res.render('login', templateVars);
+});
+
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  
-  res.cookie('username', username);
-  res.redirect('/urls');
+  const { email, password } = req.body;
+  const user = getUserByEmail(email);
+
+  if (user && user.password === password) {
+    req.session.userId = user.id;
+    console.log('Login successful, setting cookie:', user.id); // Debugging statement
+    res.redirect('/urls');
+  } else {
+    res.status(403).send('Invalid login credentials');
+  }
 });
 
 // Generate Random String as Short URL
@@ -64,21 +76,36 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  const userId = req.session.userId;
+  console.log('User ID from cookie:', userId); // Debugging statement
+  // console.log(users);
+  const user = users[userId];
+  console.log('User object:', user); // Debugging statement
+  const templateVars = { user, urls: urlDatabase };
+
   res.render("urls_index", templateVars);
 });
 
+
 app.get("/urls/new", (req, res) => {
+  const userId = req.session.userId;;
+  const user = users[userId];
   const templateVars = {
-      username: req.cookies["username"]};
+      // username: req.cookies["username"],
+      user
+    };
   res.render("urls_new", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
+  const userId = req.session.userId;;
+  const user = users[userId];
   const id = req.params.id;
   const longURL = urlDatabase[id];
   const templateVars = {
-    username: req.cookies["username"]};
+    // username: req.cookies["username"],
+    user
+  };
   res.render(templateVars);
   
   if (longURL) {
@@ -88,17 +115,15 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"] }; /* What goes here? */ 
-  res.render("urls_show", templateVars);
-});
-
 // Update/Edit
 app.get("/urls/:id", (req, res) => {
+  const userId = req.session.userId;;
+  const user = users[userId];
   const id = req.params.id;
   const templateVars = {
     longURL: urls[id],
-    username: req.cookies["username"]
+    // username: req.cookies["username"],
+    user
   }
 
   res.render('urls_show', templateVars);
@@ -122,34 +147,49 @@ app.post("/urls/:id/delete", (req, res) => {
 })
 
 // Logout
+// app.get("/logout", (req, res) => {
+//   const userId = req.cookies.user_id;
+//   const user = users[userId];
+//   const templateVars = {
+//     // longURL: urls[id],
+//     // // username: req.cookies["username"],
+//     user
+//   }
+
+//   res.redirect('/login');
+// })
+
 app.post('/logout', (req, res) => {
+  // const userId = req.cookies.user_id;
+  // const user = users[userId];
   // Clear the 'username' cookie
-  res.clearCookie('username');
+  // res.clearCookie('username');
+  req.session.email = null;
   // Redirect to /urls page
-  res.redirect('/urls');
+  res.redirect('/login');
 });
+
 
 // Register
-app.get("/register", (req, res) => {
-  console.log('Username from session:', req.session.username);
-  res.render('register', { 
-    username: req.session.username,
-    error: req.session.error || null });
-  // const templateVars = {error: req.cookies.error}
-  // res.clearCookie("error")
+// app.get("/register", (req, res) => {
+//   console.log('Username from session:', req.session.username);
+//   res.render('register', { 
+//     username: req.session.username,
+//     error: req.session.error || null });
+//   // const templateVars = {error: req.cookies.error}
+//   // res.clearCookie("error")
 
-  // return res.render("register", templateVars);
-});
-
-// logging to check if session data is populated
-// app.use((req, res, next) => {
-//   console.log('Session Data:', req.session); // Log session data
-//   next();
+//   // return res.render("register", templateVars);
 // });
+
+app.get('/register', (req, res) => {
+  const templateVars = { user: null };
+  res.render('register', templateVars);
+});
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
-
+  
   if (!email || !password) {
     req.session.error = "Email and password cannot be empty.";
     return res.redirect('/register');
@@ -168,24 +208,11 @@ app.post('/register', (req, res) => {
   // Clear error
   req.session.error = null;
 
-  req.session.username = newUser.email; // Change this based on your user logic
+  req.session.userId = newUser.id; // Change this based on your user logic
+  // res.cookie('user_id', userId);
   res.redirect('/urls');
 });
 
-
-// User login
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  
-  const user = authenticateUser(email, password); // Example function
-
-  if (user) {
-    req.session.username = user.username; // Store the username in the session
-    res.redirect('/urls');
-  } else {
-    res.status(403).send('Invalid credentials');
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

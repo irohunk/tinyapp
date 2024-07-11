@@ -1,3 +1,6 @@
+const { users } = require('../data/userData');
+
+
 const authenticateUser = (users, email, password) => {
   const user = users[email];
 
@@ -38,4 +41,13 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 };
 
-module.exports = { authenticateUser, userExists, createUser };
+// Function to find a user by email
+const getUserByEmail = (email) => {
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === email) return user;
+  }
+  return null;
+};
+
+module.exports = { authenticateUser, userExists, createUser, getUserByEmail };
