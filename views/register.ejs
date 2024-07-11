@@ -1,0 +1,22 @@
+<%- include('partials/_header.ejs') %>
+<section>
+  <h1>
+    <span>User Registration!</span>
+  </h1>
+</section>
+<section>
+  <% if(error){ %>
+    <section class="error">
+      <h1>ERROR</h1>
+      <p><%= error %></p>
+    </section>
+  <% } %>
+  <form action="/register" method="POST" style="margin-top: 1em">
+    <input type="email" placeholder="Enter your email" name="email" />
+    <input type="password" placeholder="Enter your password" name="password" />
+    <button>Submit</button>
+  </form>
+  
+</section>
+
+

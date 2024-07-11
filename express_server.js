@@ -1,11 +1,33 @@
 const express = require("express");
-const cookieParser = require("cookie-parser");
+const bodyParser = require('body-parser');
+const session = require('express-session');
 const app = express();
+const cookieParser = require("cookie-parser");
 const PORT = 8080; // default port 8080
+
+const users = require("./data/userData");
+const {
+  authenticateUser,
+  userExists,
+  createUser
+} = require("./helpers/authenticationHelpers");
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
 app.use(express.json());
+
+// Body-parser middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Session middleware
+app.use(session({
+  secret: 'some secret key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to 'true' in production with HTTPS
+}));
+
+
 
 const urlDatabase = {
   b2xVn2: "http://www.lighthouselabs.ca",
@@ -17,6 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 // Login
 app.post('/login', (req, res) => {
   const username = req.body.username;
+  
   res.cookie('username', username);
   res.redirect('/urls');
 });
@@ -104,6 +127,64 @@ app.post('/logout', (req, res) => {
   res.clearCookie('username');
   // Redirect to /urls page
   res.redirect('/urls');
+});
+
+// Register
+app.get("/register", (req, res) => {
+  console.log('Username from session:', req.session.username);
+  res.render('register', { 
+    username: req.session.username,
+    error: req.session.error || null });
+  // const templateVars = {error: req.cookies.error}
+  // res.clearCookie("error")
+
+  // return res.render("register", templateVars);
+});
+
+// logging to check if session data is populated
+// app.use((req, res, next) => {
+//   console.log('Session Data:', req.session); // Log session data
+//   next();
+// });
+
+app.post('/register', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    req.session.error = "Email and password cannot be empty.";
+    return res.redirect('/register');
+  }
+
+  // Check if the user already exists; for simplicity, assume a function `userExists`
+  if (userExists(email, users)) {
+    req.session.error = "Email already exists.";
+    return res.redirect('/register');
+  }
+
+  // Otherwise, create the user
+  // Assuming a function `createUser`
+  const newUser = createUser(email, password, users);
+  
+  // Clear error
+  req.session.error = null;
+
+  req.session.username = newUser.email; // Change this based on your user logic
+  res.redirect('/urls');
+});
+
+
+// User login
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  const user = authenticateUser(email, password); // Example function
+
+  if (user) {
+    req.session.username = user.username; // Store the username in the session
+    res.redirect('/urls');
+  } else {
+    res.status(403).send('Invalid credentials');
+  }
 });
 
 app.listen(PORT, () => {
