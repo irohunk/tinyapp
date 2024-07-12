@@ -1,5 +1,5 @@
 const { users } = require('../data/userData');
-const { urlDatabase } = require('../express_server');
+// const { urlDatabase } = require('../express_server');
 
 
 const authenticateUser = (users, email, password) => {
@@ -51,7 +51,7 @@ const getUserByEmail = (email) => {
   return null;
 };
 
-const urlsForUser = (id) => {
+const urlsForUser = (id, urlDatabase) => {
   const userURLs = {};
     for (const urlId in urlDatabase) {
       if (urlDatabase[urlId].userID === id) {
