@@ -52,13 +52,13 @@ const getUserByEmail = (email) => {
 };
 
 const urlsForUser = (id) => {
-  const userURLs = {}
+  const userURLs = {};
     for (const urlId in urlDatabase) {
       if (urlDatabase[urlId].userID === id) {
         userURLs[urlId] = urlDatabase[urlId];
       }
-    return userURLs;
-  }
+    }
+  return userURLs;
 }
 
 module.exports = { authenticateUser, userExists, createUser, getUserByEmail, urlsForUser };
