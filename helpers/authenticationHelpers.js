@@ -1,4 +1,5 @@
 const { users } = require('../data/userData');
+const { urlDatabase } = require('../express_server');
 
 
 const authenticateUser = (users, email, password) => {
@@ -50,4 +51,14 @@ const getUserByEmail = (email) => {
   return null;
 };
 
-module.exports = { authenticateUser, userExists, createUser, getUserByEmail };
+const urlsForUser = (id) => {
+  const userURLs = {}
+    for (const urlId in urlDatabase) {
+      if (urlDatabase[urlId].userID === id) {
+        userURLs[urlId] = urlDatabase[urlId];
+      }
+    return userURLs;
+  }
+}
+
+module.exports = { authenticateUser, userExists, createUser, getUserByEmail, urlsForUser };
