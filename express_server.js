@@ -106,13 +106,14 @@ app.get("/u/:id", (req, res) => {
     // username: req.cookies["username"],
     user
   };
-  res.render(templateVars);
   
   if (longURL) {
     res.redirect(longURL);
   } else {
     res.status(404).send('URL not found');
   }
+  
+  res.render(templateVars);
 });
 
 // Update/Edit
@@ -171,7 +172,8 @@ app.post('/register', (req, res) => {
   // Check if the user already exists; for simplicity, assume a function `userExists`
   if (userExists(email, users)) {
     req.session.error = "Email already exists.";
-    return res.redirect('/register');
+    // return res.redirect('/register');
+    return res.status(400).send('Email already exists');
   }
 
   // Otherwise, create the user
