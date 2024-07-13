@@ -48,7 +48,7 @@ const getUserByEmail = (email) => {
     const user = users[userId];
     if (user.email === email) return user;
   }
-  return null;
+  return undefined;
 };
 
 const urlsForUser = (id, urlDatabase) => {
