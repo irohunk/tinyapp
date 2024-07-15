@@ -51,11 +51,12 @@ const getUserByEmail = (email) => {
   return undefined;
 };
 
-const urlsForUser = (id, urlDatabase) => {
+const urlsForUser = (userId, urlDatabase) => {
   const userURLs = {};
-    for (const urlId in urlDatabase) {
-      if (urlDatabase[urlId].userID === id) {
-        userURLs[urlId] = urlDatabase[urlId];
+    for (const id in urlDatabase) {
+      const url = urlDatabase[id];
+      if (url.userId === userId) {       // changed userID to userId
+        userURLs[id] = url;
       }
     }
   return userURLs;

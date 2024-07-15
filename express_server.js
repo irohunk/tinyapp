@@ -9,6 +9,11 @@ const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
 
 const { users } = require("./data/userData");
+
+const userPassword = bcrypt.hashSync("qwerty", 10);
+users["userRandomID"]["password"] = userPassword;
+
+
 const {
   authenticateUser,
   userExists,
@@ -43,11 +48,11 @@ app.use(cookieSession({
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
+    userId: "aJ48lW",
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ491Q",
+    userId: "aJ491Q",
   },
 };
 
@@ -107,13 +112,10 @@ app.get("/urls", (req, res) => {
  
   const user = users[userId];
   // console.log('User object:', user); // Debugging statement
-  const userURLs = urlsForUser(userId, urlDatabase);
-  console.log("Filtered URLs for User:", userURLs); // Debugging
+  const urls = urlsForUser(userId, urlDatabase);
+  console.log("Filtered URLs for User:", urls); // Debugging
 
-  const templateVars = {
-    user,
-    urls: userURLs
-  };
+  const templateVars = { user, urls };
 
   res.render("urls_index", templateVars);
 });
@@ -133,7 +135,7 @@ app.post("/urls", (req, res) => {
 
   urlDatabase[id] = {
     longURL,
-    userID: userId
+    userId
   }
 
   console.log(urlDatabase);
@@ -210,7 +212,7 @@ app.get("/urls/:id", (req, res) => {
   }
 
   // Check if the current user owns the URL
-  if (urlEntry.userID !== userId) {
+  if (urlEntry.userId !== userId) {
     return res.status(403).send("You do not have permission to view this URL.");
   }
 
@@ -241,7 +243,7 @@ app.post("/urls/:id", (req, res) => {
   }
 
   // Check if the current user owns the URL
-  if (urlEntry.userID !== userId) {
+  if (urlEntry.userId !== userId) {
     return res.status(403).send("You do not have permission to edit this URL.");
   }
 
@@ -269,7 +271,7 @@ app.post("/urls/:id/delete", (req, res) => {
   }
   
   // Check if the current user owns the URL
-  if (urlEntry.userID !== userId) {
+  if (urlEntry.userId !== userId) {
     return res.status(403).send("You do not have permission to delete this URL.");
   }
 
