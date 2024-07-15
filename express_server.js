@@ -23,7 +23,6 @@ const {
 } = require("./helpers/authenticationHelpers");
 
 app.set("view engine", "ejs");
-// app.use(cookieParser());
 app.use(express.json());
 
 // Body-parser middleware
@@ -37,14 +36,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
-// Session middleware
-// app.use(session({
-//   secret: 'some secret key',
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: { secure: false } // Set to 'true' in production with HTTPS
-// }));
-
+// URL Database
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -107,13 +99,11 @@ app.get("/urls", (req, res) => {
 
   if (!userId) {
     return res.send("Please log in or register to view URLs.");
-    // return res.redirect('/login?error=Please log in to view URLs');
   }
  
   const user = users[userId];
-  // console.log('User object:', user); // Debugging statement
   const urls = urlsForUser(userId, urlDatabase);
-  console.log("Filtered URLs for User:", urls); // Debugging
+  // console.log("Filtered URLs for User:", urls); // Debugging
 
   const templateVars = { user, urls };
 
@@ -125,11 +115,8 @@ app.post("/urls", (req, res) => {
   const user = users[userId];
   if (!user) {
     return res.status(403).send("<h2>You need to be logged in to shorten URLs.</h2>");
-    // return res.redirect('/login?error=Please log in to shorten URLs');
-    // req.session.error = "<h2>You need to be logged in to shorten URLs.</h2>";
-    // return res.redirect("/login");
   }
-  // const longURL = req.body.longURL;
+  
   const { longURL } = req.body;
   const id = generateShortURL();
 
@@ -138,10 +125,6 @@ app.post("/urls", (req, res) => {
     userId
   }
 
-  console.log(urlDatabase);
-  
-  console.log(req.body); // Log the POST request body to the console
-  // res.send("Ok"); // Respond with 'Ok' (we will replace this)
   res.redirect(`/urls/${id}`);
 });
 
@@ -170,18 +153,13 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   // Retrieve the userId from session if needed
-  const userId = req.session.userId;;
-  // const user = users[userId];
+  const userId = req.session.userId;
 
   // Get the shortened URL id from the request parameters
   const id = req.params.id;
-  // const longURL = urlDatabase[id].longURL; // CHANGED HERE
 
   // Fetch the URL entry from the database
   const urlEntry = urlDatabase[id];
-  // const templateVars = {
-  //   user
-  // };
   
   // Check if the URL entry exists
   if (urlEntry) {
@@ -190,8 +168,6 @@ app.get("/u/:id", (req, res) => {
   } else {
     res.status(404).send('URL not found'); // Provide clear feedback
   }
-  
-  // res.render(templateVars);
 });
 
 // Update/Edit
@@ -286,7 +262,6 @@ app.post("/urls/:id/delete", (req, res) => {
 // Logout
 app.post('/logout', (req, res) => {
   // Clear the session
-  // req.session.email = null;
   req.session = null;
   // Redirect to /urls page
   res.redirect('/login');
@@ -312,7 +287,6 @@ app.post('/register', (req, res) => {
   // Check if the user already exists
   if (userExists(email, users)) {
     req.session.error = "Email already exists.";
-    // return res.redirect('/register');
     return res.status(400).send('Email already exists');
   }
 
@@ -327,7 +301,6 @@ app.post('/register', (req, res) => {
 
   // Set session userID to newly created user's ID
   req.session.userId = newUser.id;
-  // res.cookie('user_id', userId);
   res.redirect('/urls');
 });
 
