@@ -1,17 +1,18 @@
 const express = require("express");
 const bodyParser = require('body-parser');
-// const session = require('express-session');
 const app = express();
-// const cookieParser = require("cookie-parser");
-const cookieSession = require('cookie-session'); // Import cookie-session
+const cookieSession = require('cookie-session');
 
 const PORT = 8080; // default port 8080
 const bcrypt = require("bcryptjs");
 
 const { users } = require("./data/userData");
 
-const userPassword = bcrypt.hashSync("qwerty", 10);
-users["userRandomID"]["password"] = userPassword;
+const user1Password = bcrypt.hashSync("qwerty", 10);
+users["userRandomID"]["password"] = user1Password;
+
+const user2Password = bcrypt.hashSync("qwerty", 10);
+users["user2RandomID"]["password"] = user2Password;
 
 
 const {
@@ -31,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Cookie-session middleware
 app.use(cookieSession({
   name: 'session',
-  keys: ['15321'], // Replace 'your-secret-key' with a real secret key
+  keys: ['15321'],
   // Cookie options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
@@ -59,12 +60,9 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email);
-  console.log("user = ", user); // debugging
 
   if (user && bcrypt.compareSync(password, user.password)) {
     req.session.userId = user.id;
-    console.log('Login successful, setting cookie:', user.id); // Debugging statement
-    console.log("Session userID", req.session.userId);
     res.redirect('/urls');
   } else {
     res.status(403).send('Invalid login credentials');
@@ -93,17 +91,13 @@ const authenticate = (req, res, next) => {
 // URLs route
 app.get("/urls", (req, res) => {
   const userId = req.session.userId;
-
-  // Debug: Print user ID
-  console.log("Session User ID:", userId);
-
+  
   if (!userId) {
     return res.send("Please log in or register to view URLs.");
   }
  
   const user = users[userId];
   const urls = urlsForUser(userId, urlDatabase);
-  // console.log("Filtered URLs for User:", urls); // Debugging
 
   const templateVars = { user, urls };
 
